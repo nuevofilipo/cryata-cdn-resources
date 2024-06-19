@@ -3,6 +3,8 @@ body {
   background-color: #2C2C2C;
   margin: 0;
   padding: 0;
+  overflow:hidden;
+  height: 100vh;
 }
 
 .main {

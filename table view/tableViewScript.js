@@ -309,7 +309,7 @@ function goToChartViewPage(coin) {
     // for this to work, the local host of the chart view page has to be open
   console.log("clicked");
     var timeframe = document.querySelector(".tablinks.active").getAttribute("data-timeframe");
-   window.location.href = `http://127.0.0.1:5500/frontend/html-files/chartViewPage.html?coin=${coin}&timeframe=${timeframe}`;
+   window.location.href = `https://www.cryata.com/metrics?coin=${coin}&timeframe=${timeframe}`;
   
 }
 

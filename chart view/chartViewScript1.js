@@ -53,70 +53,40 @@ let addedRanges = new Map();
 
 
 //! functions for fetching data asyncronously ----------------------------------------------
-//for use with local data
-async function getData(route){
-  changeTimeFrameFromUrl();
-  const selectedBtn = document.querySelector(".active");
-  const response = await fetch(
-    `http://127.0.0.1:5000/api/${route}/?coin=${updateCoin()}&timeframe=${selectedBtn.value}` 
-  )
-  const data = await response.json();
-  return data;
-}
-
-async function getRangesData(range_value){
-  const selectedBtn = document.querySelector(".active");
-  const response = await fetch(
-    `http://127.0.0.1:5000/api/ranges/?coin=${updateCoin()}&timeframe=${selectedBtn.value}&ranges=${range_value}` 
-  )
-  const data = await response.json();
-  return data;
-
-}
-
-async function getDataIndividualTimeframe(endpoint, additionalParameter,  indicatorTimeframe){
-  const chartTimeframe = document.querySelector('.tablinks.active').getAttribute('data-timeframe');
-  const response = await fetch(
-    `http://127.0.0.1:5000/api/${endpoint}/?coin=${updateCoin()}&timeframe=${chartTimeframe}&${additionalParameter}=${indicatorTimeframe}` 
-  )
-  const data = await response.json();
-  return data;
-    
-}
 
 // for use with external hosted data
-// async function getData(route){
-//   changeTimeFrameFromUrl();
-//   const selectedBtn = document.querySelector(".active");
-//   const response = await fetch(
-//     `https://new-cryata-backend-production.up.railway.app//api/${route}/?coin=${updateCoin()}&timeframe=${selectedBtn.value}` 
-//   )
+ async function getData(route){
+   changeTimeFrameFromUrl();
+   const selectedBtn = document.querySelector(".active");
+   const response = await fetch(
+     `https://new-cryata-backend-production.up.railway.app//api/${route}/?coin=${updateCoin()}&timeframe=${selectedBtn.value}` 
+   )
   
-//   const data = await response.json();
-//   return data;
-// }
+   const data = await response.json();
+   return data;
+ }
 
-// async function getRangesData(range_value){
-//   const selectedBtn = document.querySelector(".active");
-//   const response = await fetch(
-//     `https://new-cryata-backend-production.up.railway.app/api/ranges/?coin=${updateCoin()}&timeframe=${selectedBtn.value}&ranges=${range_value}` 
-//   )
-  
-//   const data = await response.json();
-//   return data;
+ async function getRangesData(range_value){
+   const selectedBtn = document.querySelector(".active");
+   const response = await fetch(
+     `https://new-cryata-backend-production.up.railway.app/api/ranges/?coin=${updateCoin()}&timeframe=${selectedBtn.value}&ranges=${range_value}` 
+   )
+ 
+   const data = await response.json();
+   return data;
 
-// }
+ }
 
-// async function getDataIndividualTimeframe(endpoint, additionalParameter,  indicatorTimeframe){
-//   const chartTimeframe = document.querySelector('.tablinks.active').getAttribute('data-timeframe');
-//   const response = await fetch(
-//     `https://new-cryata-backend-production.up.railway.app/api/${endpoint}/?coin=${updateCoin()}&timeframe=${chartTimeframe}&${additionalParameter}=${indicatorTimeframe}` 
-//   )
+ async function getDataIndividualTimeframe(endpoint, additionalParameter,  indicatorTimeframe){
+   const chartTimeframe = document.querySelector('.tablinks.active').getAttribute('data-timeframe');
+   const response = await fetch(
+     `https://new-cryata-backend-production.up.railway.app/api/${endpoint}/?coin=${updateCoin()}&timeframe=${chartTimeframe}&${additionalParameter}=${indicatorTimeframe}` 
+   )
 
-//   const data = await response.json();
-//   return data;
+   const data = await response.json();
+   return data;
     
-// }
+ }
 
 //! functions for creating and removing boxes and ranges----------------------------------------------
 async function createBoxesData(mapping, data, color, key){

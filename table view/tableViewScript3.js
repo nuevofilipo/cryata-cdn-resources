@@ -330,4 +330,7 @@ mybutton.onclick = function () {
 };
 
 //! Initial call to populate table with data
-main("1d");
+async function init() {
+  main("1d");
+}
+document.addEventListener("DOMContentLoaded", init);

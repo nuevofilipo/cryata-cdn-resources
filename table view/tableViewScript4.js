@@ -41,7 +41,7 @@ function addRow(
 
   cell1.innerHTML = index;
   cell2.innerHTML = coin;
-  cell3.innerHTML = price;
+  cell3.innerHTML = "$"+String(price);
   cell3.style.textAlign = "right";
   cell3b.innerHTML = String(priceChange) + " %";
   cell3b.style.textAlign = "right";
@@ -308,7 +308,7 @@ document
 function goToChartViewPage(coin) {
     // for this to work, the local host of the chart view page has to be open
     var timeframe = document.querySelector(".tablinks.active").getAttribute("data-timeframe");
-      window.location.href = `https://www.cryata.com/metrics?coin=${coin}&timeframe=${timeframe}`;
+   window.location.href = `http://127.0.0.1:5500/frontend/html-files/chartViewPage.html?coin=${coin}&timeframe=${timeframe}`;
 }
 
 let mybutton = document.getElementById("backToTopBtn");
@@ -329,8 +329,11 @@ mybutton.onclick = function () {
   });
 };
 
+
+
 //! Initial call to populate table with data
 async function init() {
   main("1d");
 }
+
 document.addEventListener("DOMContentLoaded", init);

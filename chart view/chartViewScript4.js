@@ -1,6 +1,7 @@
 //! defining the chart and other chart elements ----------------------------------------------
-let urlParamsProcessedCoin = false;
-let urlParamsProcessedTf = false;
+var g_urlParamsProcessedCoin = false;
+var g_urlParamsProcessedTf = false;
+var g_firstLoad = true;
 const mainSection = document.getElementById("tvchart");
 const chartProperties = {
   height: getMainHeight() ,
@@ -13,7 +14,19 @@ const chartProperties = {
     vertLines: { color: "#444", visible:false },
     horzLines: { color: "#444", visible: false },
   },
+  crosshair:{
+    mode: LightweightCharts.CrosshairMode.Normal,
+    
+  },
+  timeScale: {
+    timeVisible: true,
+  },
+  rightPriceScale: {
+    mode: 1,
+    autoScale: true,
+  },
 };
+
 const domElement = document.getElementById("tvchart");
 const chart = LightweightCharts.createChart(domElement, chartProperties);
 const candleSeries = chart.addCandlestickSeries();
@@ -49,71 +62,59 @@ const band10 = chart.addLineSeries({ color: "rgb(236, 33, 243)", lineWidth: 1, p
 const band11 = chart.addLineSeries({ color: "rgb(243, 33, 61)", lineWidth: 1, priceLineVisible: false });
 
 
-let addedSupplyZones = new Map();
-let addedRanges = new Map();
+var addedSupplyZones = new Map();
+var addedRanges = new Map();
 
 
 //! functions for fetching data asyncronously ----------------------------------------------
 // for use with local data
 // async function getData(route){
 //   changeTimeFrameFromUrl();
-//   const selectedBtn = document.querySelector(".active");
 //   const response = await fetch(
-//     `http://127.0.0.1:5000/api/${route}/?coin=${updateCoin()}&timeframe=${selectedBtn.value}` 
+//     `http://127.0.0.1:5000/api/${route}/?coin=${getCurrentCoin()}&timeframe=${getCurrentTimeframe()}` 
 //   )
 //   const data = await response.json();
 //   return data;
 // }
 
 // async function getRangesData(range_value){
-//   const selectedBtn = document.querySelector(".active");
 //   const response = await fetch(
-//     `http://127.0.0.1:5000/api/ranges/?coin=${updateCoin()}&timeframe=${selectedBtn.value}&ranges=${range_value}` 
+//     `http://127.0.0.1:5000/api/ranges/?coin=${getCurrentCoin()}&timeframe=${getCurrentTimeframe()}&ranges=${range_value}` 
 //   )
 //   const data = await response.json();
 //   return data;
-
 // }
 
 // async function getDataIndividualTimeframe(endpoint, additionalParameter,  indicatorTimeframe){
-//   const chartTimeframe = document.querySelector('.tablinks.active').getAttribute('data-timeframe');
 //   const response = await fetch(
-//     `http://127.0.0.1:5000/api/${endpoint}/?coin=${updateCoin()}&timeframe=${chartTimeframe}&${additionalParameter}=${indicatorTimeframe}` 
+//     `http://127.0.0.1:5000/api/${endpoint}/?coin=${getCurrentCoin()}&timeframe=${getCurrentTimeframe()}&${additionalParameter}=${indicatorTimeframe}` 
 //   )
 //   const data = await response.json();
 //   return data;
-    
 // }
 
 // for use with external hosted data
 async function getData(route){
   changeTimeFrameFromUrl();
-  const selectedBtn = document.querySelector(".active");
   const response = await fetch(
-    `https://new-cryata-backend-production.up.railway.app//api/${route}/?coin=${updateCoin()}&timeframe=${selectedBtn.value}` 
+    `https://new-cryata-backend-production.up.railway.app//api/${route}/?coin=${getCurrentCoin()}&timeframe=${getCurrentTimeframe()}`
   )
-  
   const data = await response.json();
   return data;
 }
 
 async function getRangesData(range_value){
-  const selectedBtn = document.querySelector(".active");
   const response = await fetch(
-    `https://new-cryata-backend-production.up.railway.app/api/ranges/?coin=${updateCoin()}&timeframe=${selectedBtn.value}&ranges=${range_value}` 
+    `https://new-cryata-backend-production.up.railway.app/api/ranges/?coin=${getCurrentCoin()}&timeframe=${getCurrentTimeframe()}&ranges=${range_value}` 
   )
-  
   const data = await response.json();
   return data;
-
 }
 
 async function getDataIndividualTimeframe(endpoint, additionalParameter,  indicatorTimeframe){
-  const chartTimeframe = document.querySelector('.tablinks.active').getAttribute('data-timeframe');
   const response = await fetch(
-    `https://new-cryata-backend-production.up.railway.app/api/${endpoint}/?coin=${updateCoin()}&timeframe=${chartTimeframe}&${additionalParameter}=${indicatorTimeframe}` 
+    `https://new-cryata-backend-production.up.railway.app/api/${endpoint}/?coin=${getCurrentCoin()}&timeframe=${getCurrentTimeframe()}&${additionalParameter}=${indicatorTimeframe}`
   )
-
   const data = await response.json();
   return data;
     
@@ -121,8 +122,7 @@ async function getDataIndividualTimeframe(endpoint, additionalParameter,  indica
 
 //! functions for creating and removing boxes and ranges----------------------------------------------
 async function createBoxesData(mapping, data, color, key){
-  list = [];
-  // const data = data;
+  var list = [];
   data.forEach(element => {
     color = element.hasOwnProperty("color") ? element["color"] : color;
     const i = candleSeries.createBox({
@@ -146,7 +146,7 @@ async function createBoxesData(mapping, data, color, key){
 }
 
 async function createRangesData(mapping, data, color, key){
-  list = [];
+  var list = [];
   data.forEach(element => {
     const i = candleSeries.createBox({
         corners: [{ time: element["x0"] / 1000, price: element["y0"] }, { time: element["x1"] / 1000, price: element["y1"] }],
@@ -203,25 +203,32 @@ async function setData(){
     
   });
 
-  turnOffLoader();
+  if(g_firstLoad){
+    turnOffLoader();
+    g_firstLoad = false;
+  }
+  
 
   candleSeries.setData(cdata);
-  chart.priceScale("right").applyOptions({
-    autoScale: true,
-    mode: 1,
-  });
-  chart.timeScale().applyOptions({
-    timeVisible: true,
-  })
   chart.resize(getMainWidth(), getMainHeight());
-
-
+  chart.timeScale().fitContent();
 }
 
 // setting context bands data
 async function setLineData(){
   if (indicatorState() == true){
   data = await getData("4lines");
+  if (data.length == 0 ){
+    showNotification('Data not available');
+    const indicatorSwitch = document.getElementById("indicator-switch");
+    indicatorSwitch.click();
+    return;
+  } else if(indicatorState() == false){
+    removeContextBandsData();
+    return;
+  }
+
+
   const maDownShift = data.map((d) => {
     return { value: parseFloat(d.MA)*0.62, time: d.time / 1000 };
   });
@@ -239,12 +246,17 @@ async function setLineData(){
   emaLine1.setData(emaDownShift);
   emaLine2.setData(emaUpShift);
   } else if (indicatorState() == false){
-    maLine1.setData([]);
-    maLine2.setData([]);
-    emaLine1.setData([]);
-    emaLine2.setData([]);
+    removeContextBandsData();
   }
 }
+
+async function removeContextBandsData(){
+  maLine1.setData([]);
+  maLine2.setData([]);
+  emaLine1.setData([]);
+  emaLine2.setData([]);
+}
+
 
 async function setVarvData(){
   if (varvIndicatorState() == true){
@@ -323,60 +335,47 @@ async function removeVarvData(){
   band11.setData([]);
 }
 
-// function for setting all at once
-function setAll(){
-  setData();
-  setLineData();
-  setVarvData();
-  updateIndividualIndicatorsTimeframe();
+//! functions for setting multiple at once
+async function setAll(){
+  updateSmallIndicatorsTf();
+  await setData();
+  await setLineData();
+  await setVarvData();
 }
 
-
-
-//! manipulate coin and timeframe from url ----------------------------------------------
-
-function getUrlParameterCoin() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const myParam = urlParams.get('coin');
-  return myParam;
-}
-
-function getUrlParameterTimeframe() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const myParam = urlParams.get('timeframe');
-  return myParam;
-}
-
-function updateCoin(){
-  if (getUrlParameterCoin() != null && !urlParamsProcessedCoin){
-    document.getElementById("coin-selector").value = getUrlParameterCoin();
-    urlParamsProcessedCoin = true;
-    return getUrlParameterCoin();    
-  }
-  const selectedCoin = document.getElementById("coin-selector").value;
-  return selectedCoin;
-}
-
-function changeTimeFrameFromUrl(){
-  if (getUrlParameterTimeframe() != null && !urlParamsProcessedTf){
-    const selectedTimeframe = getUrlParameterTimeframe();
-    const buttons = document.querySelectorAll('.tablinks');
-    buttons.forEach(button => {
-      if (button.getAttribute('data-timeframe') == selectedTimeframe){
-        button.classList.add('active');
-      } else if (button.classList.contains('active')){
-        button.classList.remove('active');
-      }
-    });
-    urlParamsProcessedTf = true;
-  }
-  const selectedBtn = document.querySelector(".active");
-  return selectedBtn.value;
+async function onChangeOfCoin(){
+  setLoader();
+  removeContextBandsData();
+  removeVarvData();
+  await setData(); 
+  await setLineData(); 
+  await setVarvData(); 
+  await updateSmallIndicatorCoin();
+  turnOffLoader();
+  chart.timeScale().fitContent();
 }
 
 //! updating and changing timeframes && small timeframe-btns-----------------------------------
+async function changePairAgainst(event, pairAgainst) {
+  setLoader();
+  var options = document.querySelectorAll(".pairAgainst");
+  for (var i = 0; i < options.length; i++) {
+    options[i].classList.remove("active");
+  }
+  event.currentTarget.classList.add("active");
+  var currentPairAgainst = event.currentTarget.getAttribute("data-currency");
+  localStorage.setItem('selectedPairAgainst', currentPairAgainst);
+
+  await setAll();
+  turnOffLoader();
+  chart.timeScale().fitContent();
+}
+
 // changes main timeframe
-function updateTimeframe(event, timeframe) {
+async function changeTimeframe(event, timeframe) {
+  setLoader();
+  removeContextBandsData();
+  removeVarvData();
   var i, tablinks;
 
   tablinks = document.getElementsByClassName("tablinks");
@@ -388,12 +387,14 @@ function updateTimeframe(event, timeframe) {
   // Save the selected timeframe to localStorage
   localStorage.setItem('selectedTimeframe', timeframe);
 
-  setAll();
+  await setAll();
+  turnOffLoader();
+  chart.timeScale().fitContent(); 
   
 }
 
 // this makes timeframe buttons with smaller tf unclickable
-function updateIndividualIndicatorsTimeframe(){
+function updateSmallIndicatorsTf(){
   const individualTimeframeButtons = document.querySelectorAll('.timeframe-btn');
   const timeframeRanks = {
     '1h': 1,
@@ -428,26 +429,88 @@ function updateIndividualIndicatorsTimeframe(){
 }
 
 // this resets indicators that get activated by the small timeframe buttons
-function updateSmallIndicatorCoin(){
+async function updateSmallIndicatorCoin() {
   const buttons = document.querySelectorAll('.timeframe-btn');
-  buttons.forEach(button => {
+  await Promise.all(Array.from(buttons).map(async button => {
     const indTime = button.getAttribute('data-timeframe');
     const indicator = button.getAttribute('data-indicator');
     const type = button.getAttribute('data-type');
     const color = button.getAttribute('data-color');
     if (button.classList.contains('active')) {
-      if (type == "boxes"){
+      if (type == "boxes") {
         removeBoxesMap(addedSupplyZones, indicator + indTime);
-        createBoxesData(addedSupplyZones, getDataIndividualTimeframe( indicator, "indicatorTimeframe",  indTime), color, indicator + indTime );
-      } else if (type == "lineSeries"){
+        const data = await getDataIndividualTimeframe(indicator, "indicatorTimeframe", indTime);
+        createBoxesData(addedSupplyZones, data, color, indicator + indTime);
+      } else if (type == "lineSeries") {
         removeBoxesMap(addedRanges, indicator + indTime);
-        createRangesData(addedRanges, getDataIndividualTimeframe( indicator, "indicatorTimeframe",  indTime), color, indicator + indTime);
+        const data = await getDataIndividualTimeframe(indicator, "indicatorTimeframe", indTime);
+        createRangesData(addedRanges, data, color, indicator + indTime);
       }
     }
-  });
+  }));
+}
+
+//! getter functions: current coin and current timeframe
+function getCurrentCoin(){
+  if (getUrlParameterCoin() != null && !g_urlParamsProcessedCoin){
+    document.getElementById("coin-selector").value = getUrlParameterCoin();
+    g_urlParamsProcessedCoin = true;
+    return getUrlParameterCoin();    
+  }
+  const selectedCoin = document.getElementById("coin-selector").value;
+
+  const pairAgainst = document.querySelector(".pairAgainst.active").value;
+  if (pairAgainst == "BTC"){
+    return selectedCoin.replace("USD", "BTC");
+  }
+  return selectedCoin;
+}
+
+function getCurrentTimeframe(){
+  const chartTimeframe = document.querySelector('.tablinks.active').getAttribute('data-timeframe');
+  return chartTimeframe;
 }
 
 
+//! manipulate coin and timeframe from url && getCurrentCoin----------------------------------------------
+function getUrlParameterCoin() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const myParam = urlParams.get('coin');
+  return myParam;
+}
+
+function getUrlParameterTimeframe() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const myParam = urlParams.get('timeframe');
+  var syntaxMap = {
+    '1h': '1h',
+    '4h': '4h',
+    '1d': '1day',
+    '1w': '1week',
+    '1day': '1day',
+    '1week': '1week',
+  };
+  return syntaxMap[myParam];
+}
+
+
+
+function changeTimeFrameFromUrl(){
+  if (getUrlParameterTimeframe() != null && !g_urlParamsProcessedTf){
+    const selectedTimeframe = getUrlParameterTimeframe();
+    const buttons = document.querySelectorAll('.tablinks');
+    buttons.forEach(button => {
+      if (button.getAttribute('data-timeframe') == selectedTimeframe){
+        button.classList.add('active');
+      } else if (button.classList.contains('active')){
+        button.classList.remove('active');
+      }
+    });
+    g_urlParamsProcessedTf = true;
+  }
+  const selectedBtn = document.querySelector(".active");
+  return selectedBtn.value;
+}
 
 
 
@@ -563,7 +626,20 @@ function turnOffLoader(){
   [].forEach.call(loader, function(el) {
     el.classList.remove("loader");
   });
+  chart.resize(getMainWidth(), getMainHeight());
 }
+
+function setLoader(){
+  var tvchart = document.getElementById("tvchart");
+  tvchart.classList.add("tvchartbeforeload");
+
+  var loader = document.querySelectorAll(".spinning");
+  [].forEach.call(loader, function(el) {
+    el.classList.add("loader");
+  });
+}
+
+// saving certain settings locally over reload
 
 function setSavedTimeframe(){
   const savedTimeframe = localStorage.getItem('selectedTimeframe');
@@ -579,10 +655,24 @@ function setSavedTimeframe(){
   }
 }
 
+function setSavedPairAgainst(){
+  const savedPairAgainst = localStorage.getItem('selectedPairAgainst');
+    
+  if (savedPairAgainst){
+      const button = document.querySelector(`.pairAgainst[data-currency="${savedPairAgainst}"]`);
+          button.classList.add('active');
+  } else {
+      const defaultButton = document.querySelector('.pairAgainst[data-currency="USD"]');
+      if (defaultButton) {
+          defaultButton.classList.add('active');
+      }
+  }
+}
+
 //! element listeners ----------------------------------------------
 // context bands
-const switchElement = document.getElementById("indicator-switch");
-switchElement.addEventListener("change", function(){
+const contextBandsSwitchElement = document.getElementById("indicator-switch");
+contextBandsSwitchElement.addEventListener("change", function(){
   setLineData();
 })
 
@@ -632,10 +722,19 @@ window.addEventListener("resize", () => {
   console.log("resized");
 });
 
+document.addEventListener('DOMContentLoaded', (event) => {
+  const indicatorSwitch = document.getElementById('indicator-switch');
+  indicatorSwitch.checked = false; // Uncheck the switch
+  const varvSwitch = document.getElementById('varv-indicator-switch');
+  varvSwitch.checked = false; // Uncheck the switch
+});
+
 
 
 //! first function calls on page load ----------------------------------------------
 // populateSelect(); // populate the coin selector
 setSavedTimeframe(); // set the saved timeframe
+setSavedPairAgainst(); // set the saved pair against
 setData(); // initial data fetch and set
-updateIndividualIndicatorsTimeframe(); // initial setting of small timeframe buttons
+console.log("setting data");
+updateSmallIndicatorsTf(); // initial setting of small timeframe buttons

@@ -25,12 +25,15 @@ const chartProperties = {
     visible: false,
     fixLeftEdge: true,
     fixRightEdge: true,
+
   },
   rightPriceScale: {
     mode: LightweightCharts.PriceScaleMode.Logarithmic,
     autoscale: true,
     // visible: false,
   },
+  // handleScroll: false,
+  handleScale: false,
 };
 const domElement = document.getElementById("tvchart");
 const chart = LightweightCharts.createChart(domElement, chartProperties);
@@ -49,6 +52,7 @@ window.addEventListener("resize", () => {
   chart.resize(getMainWidth(), getMainHeight());
   console.log("resized");
 });
+
 
 
 const band1 = chart.addLineSeries({
@@ -61644,9 +61648,7 @@ const varvData = [
 ];
 candleSeries.setData(data);
 chart.timeScale().fitContent();
-// chart.timeScale().applyOptions({
-//   barSpacing: 1,
-// });
+
 
 const b1 = varvData.map((point) => ({
   time: point.time,
@@ -61703,4 +61705,90 @@ band7.setData(b7); // Set the data to your chart
 band8.setData(b8); // Set the data to your chart
 band9.setData(b9); // Set the data to your chart
 band10.setData(b10); // Set the data to your chart
-band11.setData(b11); // Set the data to your chart
+band11.setData(b11); // Set the data to your char
+
+var totalLength = data.length;
+var somePercent = data.length * 0.2;
+
+
+const visibleRange = { from: somePercent, to: data.length - somePercent }; // Adjust these values as needed
+chart.timeScale().setVisibleLogicalRange(visibleRange);
+
+
+
+// let zoomedOut = false;
+// let atTop = false;
+// let scrollSpeed = 0.7;
+
+// chart.timeScale().subscribeVisibleLogicalRangeChange((range) => {
+//   const logicalRange = chart.timeScale().getVisibleLogicalRange();
+//   // console.log(logicalRange);
+//   if (logicalRange.to - logicalRange.from >= totalLength-5) {
+//     console.log("zoomed out");
+//     zoomedOut = true;
+//   } else {
+//     zoomedOut = false;  
+//   }
+// });
+
+// document.addEventListener('scroll', () => {
+//   if (window.scrollY <= 0) {
+//     atTop = true;
+//     window.scrollTo(0, 0);
+//     console.log("at top");
+//   } else {
+//     atTop = false;
+//   }
+// });
+
+// document.addEventListener('wheel', (event) => {
+//   // if (atTop && event.deltaY < 0) return;
+//   if (zoomedOut && event.deltaY > 0 || event.deltaY < 0 && !atTop) {
+//     window.scrollBy(0, event.deltaY * scrollSpeed);
+//   }
+// });
+
+// let zoomedOut = false;
+let scrollSpeed = 0.7;
+
+function updateZoomedOutStatus() {
+  const logicalRange = chart.timeScale().getVisibleLogicalRange();
+  zoomedOut = logicalRange.to - logicalRange.from >= totalLength - 5;
+  console.log(zoomedOut ? "zoomed out" : "not zoomed out");
+}
+
+chart.timeScale().subscribeVisibleLogicalRangeChange(updateZoomedOutStatus);
+
+function zoomChart(zoomIn) {
+  let zoomSpeed = 50;
+  // calculating zoom speed
+
+
+
+
+  const currentVisibleLogicalRange = chart.timeScale().getVisibleLogicalRange();
+  const newTo = currentVisibleLogicalRange.to + (zoomIn ? -zoomSpeed : zoomSpeed);
+  const newFrom = currentVisibleLogicalRange.from + (zoomIn ? zoomSpeed : -zoomSpeed);
+  if(newTo > newFrom) {
+    chart.timeScale().setVisibleLogicalRange({ from: newFrom, to: newTo });
+  }
+  updateZoomedOutStatus();
+}
+
+window.addEventListener('wheel', (event) => {
+  event.preventDefault();
+
+  if (event.deltaY > 0) { // Scrolling down
+    if (!zoomedOut) {
+      zoomChart(false); // Zoom out
+    } else {
+      window.scrollBy(0, event.deltaY * scrollSpeed);
+    }
+  } else if (event.deltaY < 0) { // Scrolling up
+    if (window.scrollY > 0) {
+      window.scrollBy(0, event.deltaY * scrollSpeed);
+    } else {
+      zoomChart(true); // Zoom in
+    }
+  }
+}, { passive: false });

@@ -61760,8 +61760,17 @@ function updateZoomedOutStatus() {
 chart.timeScale().subscribeVisibleLogicalRangeChange(updateZoomedOutStatus);
 
 function zoomChart(zoomIn) {
-  let zoomSpeed = 50;
+  let zoomSpeed = 45;
   // calculating zoom speed
+  let startCandle = chart.timeScale().getVisibleLogicalRange().from;
+  let endCandle = chart.timeScale().getVisibleLogicalRange().to;
+  let currAmountOfCandles = endCandle - startCandle;
+
+  zoomSpeed  = currAmountOfCandles * 0.03;
+
+  if (zoomSpeed > 45){
+    zoomSpeed = 45;
+  }
 
 
 
@@ -61769,7 +61778,7 @@ function zoomChart(zoomIn) {
   const currentVisibleLogicalRange = chart.timeScale().getVisibleLogicalRange();
   const newTo = currentVisibleLogicalRange.to + (zoomIn ? -zoomSpeed : zoomSpeed);
   const newFrom = currentVisibleLogicalRange.from + (zoomIn ? zoomSpeed : -zoomSpeed);
-  if(newTo > newFrom) {
+  if(newTo -90 > newFrom) {
     chart.timeScale().setVisibleLogicalRange({ from: newFrom, to: newTo });
   }
   updateZoomedOutStatus();

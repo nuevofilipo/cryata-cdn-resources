@@ -61715,89 +61715,46 @@ const visibleRange = { from: somePercent, to: data.length - somePercent }; // Ad
 chart.timeScale().setVisibleLogicalRange(visibleRange);
 
 
+// ! below more or less working version
 
-// let zoomedOut = false;
-// let atTop = false;
 // let scrollSpeed = 0.7;
 
-// chart.timeScale().subscribeVisibleLogicalRangeChange((range) => {
+// function updateZoomedOutStatus() {
 //   const logicalRange = chart.timeScale().getVisibleLogicalRange();
-//   // console.log(logicalRange);
-//   if (logicalRange.to - logicalRange.from >= totalLength-5) {
-//     console.log("zoomed out");
-//     zoomedOut = true;
-//   } else {
-//     zoomedOut = false;  
+//   zoomedOut = logicalRange.to - logicalRange.from >= totalLength - 5;
+//   console.log(zoomedOut ? "zoomed out" : "not zoomed out");
+// }
+
+// chart.timeScale().subscribeVisibleLogicalRangeChange(updateZoomedOutStatus);
+
+// function zoomChart(zoomIn) {
+//   let zoomSpeed = 45;
+
+
+
+//   const currentVisibleLogicalRange = chart.timeScale().getVisibleLogicalRange();
+//   const newTo = currentVisibleLogicalRange.to + (zoomIn ? -zoomSpeed : zoomSpeed);
+//   const newFrom = currentVisibleLogicalRange.from + (zoomIn ? zoomSpeed : -zoomSpeed);
+//   if(newTo -1000 > newFrom) {
+//     chart.timeScale().setVisibleLogicalRange({ from: newFrom, to: newTo });
 //   }
-// });
+//   updateZoomedOutStatus();
+// }
 
-// document.addEventListener('scroll', () => {
-//   if (window.scrollY <= 0) {
-//     atTop = true;
-//     window.scrollTo(0, 0);
-//     console.log("at top");
-//   } else {
-//     atTop = false;
+// window.addEventListener('wheel', (event) => {
+//   event.preventDefault();
+
+//   if (event.deltaY > 0) { // Scrolling down
+//     if (!zoomedOut) {
+//       zoomChart(false); // Zoom out
+//     } else {
+//       window.scrollBy(0, event.deltaY * scrollSpeed);
+//     }
+//   } else if (event.deltaY < 0) { // Scrolling up
+//     if (window.scrollY > 0) {
+//       window.scrollBy(0, event.deltaY * scrollSpeed);
+//     } else {
+//       zoomChart(true); // Zoom in
+//     }
 //   }
-// });
-
-// document.addEventListener('wheel', (event) => {
-//   // if (atTop && event.deltaY < 0) return;
-//   if (zoomedOut && event.deltaY > 0 || event.deltaY < 0 && !atTop) {
-//     window.scrollBy(0, event.deltaY * scrollSpeed);
-//   }
-// });
-
-// let zoomedOut = false;
-let scrollSpeed = 0.7;
-
-function updateZoomedOutStatus() {
-  const logicalRange = chart.timeScale().getVisibleLogicalRange();
-  zoomedOut = logicalRange.to - logicalRange.from >= totalLength - 5;
-  console.log(zoomedOut ? "zoomed out" : "not zoomed out");
-}
-
-chart.timeScale().subscribeVisibleLogicalRangeChange(updateZoomedOutStatus);
-
-function zoomChart(zoomIn) {
-  let zoomSpeed = 45;
-  // calculating zoom speed
-  let startCandle = chart.timeScale().getVisibleLogicalRange().from;
-  let endCandle = chart.timeScale().getVisibleLogicalRange().to;
-  let currAmountOfCandles = endCandle - startCandle;
-
-  zoomSpeed  = currAmountOfCandles * 0.03;
-
-  if (zoomSpeed > 45){
-    zoomSpeed = 45;
-  }
-
-
-
-
-  const currentVisibleLogicalRange = chart.timeScale().getVisibleLogicalRange();
-  const newTo = currentVisibleLogicalRange.to + (zoomIn ? -zoomSpeed : zoomSpeed);
-  const newFrom = currentVisibleLogicalRange.from + (zoomIn ? zoomSpeed : -zoomSpeed);
-  if(newTo -90 > newFrom) {
-    chart.timeScale().setVisibleLogicalRange({ from: newFrom, to: newTo });
-  }
-  updateZoomedOutStatus();
-}
-
-window.addEventListener('wheel', (event) => {
-  event.preventDefault();
-
-  if (event.deltaY > 0) { // Scrolling down
-    if (!zoomedOut) {
-      zoomChart(false); // Zoom out
-    } else {
-      window.scrollBy(0, event.deltaY * scrollSpeed);
-    }
-  } else if (event.deltaY < 0) { // Scrolling up
-    if (window.scrollY > 0) {
-      window.scrollBy(0, event.deltaY * scrollSpeed);
-    } else {
-      zoomChart(true); // Zoom in
-    }
-  }
-}, { passive: false });
+// }, { passive: false });

@@ -258,7 +258,7 @@ function changePairAgainst(event, pairAgainst) {
 async function updateTable(timeframe) {
   var table = document.getElementById("cryptoTable");
   table.innerHTML =
-    "<tr class='headerTr'><th class='center-th' onclick='sortTable(0)'>#</th><th class='left-th' onclick='sortTable(1)'>Coin</th><th class='right-th' onclick='sortTable(2)'>Price</th><th class='right-th' onclick='sortTable(3)'>Change</th><th class='center-th' onclick='sortTable(4)'>Context Bands</th><th class='center-th' onclick='sortTable(5)'>VARV</th><th class='center-th' onclick='sortTable(6)'>Momentum</th><th class='right-th' onclick='sortTable(7)'>Volatility</th><th class='right-th' onclick='sortTable(8)'>Mean Performance</th><th class='right-th' onclick='sortTable(9)'>Median Performance</th><th class='right-th' onclick='sortTable(10)'>nearest zone</th></tr>";
+    "<tr class='headerTr'><th class='center-th' onclick='sortTable(0)'>#</th><th class='left-th' onclick='sortTable(1)'>Coin</th><th class='right-th' onclick='sortTable(2)'>Price</th><th class='right-th' onclick='sortTable(3)'>Change</th><th class='center-th' onclick='sortTable(4)'>Context Bands</th><th class='center-th' onclick='sortTable(5)'>VARV</th><th class='center-th' onclick='sortTable(6)'>Momentum</th><th class='right-th' onclick='sortTable(7)'>Volatility</th><th class='right-th' onclick='sortTable(8)'>Mean Performance</th><th class='right-th' onclick='sortTable(9)'>Median Performance</th><th class='right-th' onclick='sortTable(10)'>Nearest Zone</th></tr>";
   main(timeframe);
 }
 

@@ -80,6 +80,8 @@ body {
   width: calc(100%);
   background-color: #ffffffd7;
   border-radius: 10px;
+  padding-right: 5px;
+  min-height: 490px;
 }     
 .hide-sidebar-box {
   display: flex;
@@ -100,7 +102,9 @@ body {
   border-radius: 10px;
   padding: 10px 16px;
   padding-right: 30px;
-  margin: 5px;
+  margin: 1px;
+  margin-right: 5px;
+  margin-left: 5px;
   font-size: 16px;
   cursor: pointer;
   width: 95%;
@@ -131,6 +135,8 @@ body {
   align-items: start;
   width: 95%;
   padding:5px;
+  height: 28%;
+  max-height: 200px;
 }
 
 .indicators-settings-box {
@@ -153,6 +159,8 @@ body {
   align-items: center;
   width: 100%;
   padding: 5px;
+  height: 15%;
+  max-height: 100px;
 }
 .tf-indicator-box {
   display: flex;
@@ -161,6 +169,8 @@ body {
   align-items: center;
   width: 100%;
   padding: 5px;
+  height: 45%;
+  min-height: 270px;
 }
 
 .indicator-container {
@@ -169,9 +179,12 @@ body {
   /* flex-direction: column; */
   align-items: center;
   width: 95%;
-  padding:5px;
+  padding: 2px;
+  padding-right:5px;
+  padding-left:5px;
 }
 
+/* !working */
 .indicator-container-tf {
   display: flex;
   justify-content: space-between;
@@ -179,19 +192,21 @@ body {
   align-items: start;
   width: 95%;
   padding:5px;
+  height: 20%;
+  max-height: 70px;
 }
 .timeframe-buttons {
   display: flex;
   gap: 10px;
-  padding-top: 10px;
-  padding-bottom: 10px;
+  /* padding-top: 10px; */
+  /* padding-bottom: 10px; */
 }
 
 .timeframe-btn {
   padding: 5px 10px;
   color: rgb(35, 35, 35);
   border: 1px solid #1f1f1f;
-  margin-top: 5px;
+  margin-top: 2px;
   background-color: #dddbff;
   cursor: pointer;
   border-radius: 3px;
@@ -227,24 +242,35 @@ body {
   border-radius: 10px;
   display: flex;
   justify-content: space-between;
-  margin:5px;
+  margin: 2px;
+  margin-right:5px;
+  margin-left:5px;
   width: 95%;
   box-sizing: border-box;
 }
 .btn-group button {
   background-color: transparent;
   width: 100%;
-  float: left;
   border: none;
   border-right: 1px solid #1f1f1f;
   outline: none;
   cursor: pointer;
-  padding: 14px 16px;
+  /* padding: 14px 16px; */
   transition: 0.35s;
-  font-size: 16px;
+  /* font-size: 16px; */
   font-family: Inter;
   font-weight: 400;
   color: rgb(32, 32, 32);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 2vh 1vw;
+  /* min-height: 30px; */
+  max-height: 50px;
+
+  font-size: calc(8px + 0.5vw);
 }
 
 
@@ -379,7 +405,7 @@ input:checked + .slider:before {
 .sidebar-toggle {
   position: absolute;
   top: 30px;
-  left: 240px;
+  left: 250px;
   z-index: 11;
   background-color: transparent;
   color: rgb(0, 0, 0);
